@@ -75,7 +75,7 @@ def deposit():
 
 def handle_buy():
     #recorded as a transaction 
-    portfolio = input("Portfolio: ").strip()
+    portfolio_name = input("Portfolio: ").strip()
     ticker= input (" Ticker: ").strip()
     quantity = ask_number("Quantity: ")
     price = ask_number ("Purchase price: ")
@@ -118,22 +118,22 @@ def run():
         console.print(MAIN_MENU)
         user_input = ask_number("Choose an option: ")
         try:
-        if user_input == 0:
-            console.print("Thank you for choosing us!")
-            break
-        if user_input == 1:
-            handle_create_porfolio()
-        if user_input == 2:
-            handle_print_porfolios()
-        if user_input == 3:
-            handle_add_asset()
-        if user_input == 4:
-            deposit()
-        if user_input == 5:
-             handle_print_assets()
-        if user_input == 6:
-            handle_buy()
-        if user_input = 7:
-            handle_print_transactions()
+            if user_input == 0:
+                console.print("Thank you for choosing us!")
+                break
+            if user_input == 1:
+                handle_create_porfolio()
+            if user_input == 2:
+                handle_print_porfolios()
+            if user_input == 3:
+                handle_add_asset()
+            if user_input == 4:
+                deposit()
+            if user_input == 5:
+                 handle_print_assets()
+            if user_input == 6:
+                handle_buy()
+            if user_input == 7:
+                handle_print_transactions()
         except Exception as e:
-            console.print(f"[red]{str(e)}[/red]")
+                console.print(f"[red]{str(e)}[/red]")
