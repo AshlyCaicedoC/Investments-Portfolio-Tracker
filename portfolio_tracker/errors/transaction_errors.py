@@ -3,7 +3,8 @@ from decimal import Decimal
 from portfolio_tracker.errors.base_error import PortfolioTrackerError
 
 
-class TradeError(PortfolioTrackerError): # this is a base clase for a buy service rule violation
+class TradeError(PortfolioTrackerError):
+    pass # this is a base clase for a buy service rule violation
     
 
 # this is to avoid the placement of a buy order that will exceed the available cash 
