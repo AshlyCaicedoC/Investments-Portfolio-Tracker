@@ -8,4 +8,5 @@ class Transaction:
         self.side = side
         self.quantity = Decimal(str(quantity))
         self.price = Decimal(str(price))
+        self.datetime = datetime.now()
 
