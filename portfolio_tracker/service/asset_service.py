@@ -12,6 +12,7 @@ def add_asset(ticker, name):
     assets[ticker] = Asset(ticker,name)
 
 def find_asset(ticker):
+    ticker = ticker.strip().upper()
     if ticker in assets:
         return assets[ticker]
     else:
