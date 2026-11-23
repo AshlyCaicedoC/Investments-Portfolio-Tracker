@@ -1,5 +1,4 @@
 from decimal import Decimal
-from portfolio_tracker.models.portfolio import Portfolio
 from portfolio_tracker.service.price_service import get_price
 from portfolio_tracker.models.portfolio import Portfolio
 from portfolio_tracker.errors.portfolio_errors import DuplicatePortfolioError, PortfolioNotFound, PortfolioNotEmptyError
