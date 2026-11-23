@@ -44,7 +44,7 @@ def ask_number(prompt):
         text = input(prompt).strip()
         # tell the interpreter what to do if an exception (error) happens
         try:
-            return float(text)
+           number = float(text)
         except ValueError:
             console.print(f"[yellow]'{text}' is not a number. Try again.[/yellow]")
             continue 
@@ -107,7 +107,7 @@ def handle_add_asset():
 def deposit():
     amount= ask_number("Amount to deposit: ")
     deposit_cash(amount)
-   console.print(f"[green]Deposited ${amount:,.2f}. New balance: ${get_cash_balance():,.2f}[/green]")
+    console.print(f"[green]Deposited ${amount:,.2f}. New balance: ${get_cash_balance():,.2f}[/green]")
 
 def handle_buy():
     ticker = input("Ticker: ").strip()
