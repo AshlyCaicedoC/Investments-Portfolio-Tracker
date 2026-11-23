@@ -1,5 +1,5 @@
 from portfolio_tracker.models.portfolio import Portfolio
-from portfolio_tracker.errors.portfolio_errors import DuplicatePortfolioError, PortfolioNotFound
+from portfolio_tracker.errors.portfolio_errors import DuplicatePortfolioError, PortfolioNotFound, PortfolioNotEmptyError
 
 
 portfolios = {} # will be replaced with real persistance when we introduce databases 
@@ -15,7 +15,7 @@ def create_portfolio(name, description):
             f"A portfolio named '{name}' already exists"
         )
 
-    portfolios[name.lower()] = Portfolio(name, strategy)
+    portfolios[name.lower()] = Portfolio(name, description)
 
 
 def find_portfolio(name):

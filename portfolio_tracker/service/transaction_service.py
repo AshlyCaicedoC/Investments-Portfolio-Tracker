@@ -16,14 +16,14 @@ from portfolio_tracker.errors.transaction_errors import (
 transactions = []
 
 
-def add_transaction(portfolio, asset, quantity, side, price):
+def add_transaction(portfolio, asset, side, quantity, price):
     transaction = Transaction(portfolio, asset, side, quantity, price)
     transactions.append(transaction)
     return transaction
 
 
 def buy(ticker, quantity, price):
-    portfolio = get_selected_portfolio()
+    portfolio = view_selected_portfolio()
     asset = find_asset(ticker)
 
     quantity = Decimal(str(quantity))
@@ -38,7 +38,7 @@ def buy(ticker, quantity, price):
     total_cost = quantity * price
 
     if cash_account.balance < total_cost:
-        raise InsufficientCashError("You do not have enough cash to complete this purchase.")
+        raise InsufficientFundsError("You do not have enough cash to complete this purchase.")
 
     if asset.ticker in portfolio.positions:
         position = portfolio.positions[asset.ticker]
@@ -51,20 +51,19 @@ def buy(ticker, quantity, price):
 
         position.quantity = new_quantity
         position.average_cost = new_average_cost
-
     else:
         position = Position(asset.ticker, quantity, price)
         portfolio.positions[asset.ticker] = position
 
     cash_account.update_balance(-total_cost)
 
-    add_transaction(portfolio, asset, quantity, "BUY", price)
+    add_transaction(portfolio, asset, "BUY", quantity, price)
 
     return position
 
 
 def sell(ticker, quantity, price):
-    portfolio = get_selected_portfolio()
+    portfolio = view_selected_portfolio()
     asset = find_asset(ticker)
 
     quantity = Decimal(str(quantity))
@@ -96,6 +95,6 @@ def sell(ticker, quantity, price):
     if position.quantity == 0:
         del portfolio.positions[asset.ticker]
 
-    add_transaction(portfolio, asset, quantity, "SELL", price)
+    add_transaction(portfolio, asset, "SELL", quantity, price)
 
     return realized_gain

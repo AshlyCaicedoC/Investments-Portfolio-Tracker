@@ -1,5 +1,5 @@
 import logging
-
+from decimal import Decimal
 from portfolio_tracker.service.asset_service import find_asset
 from portfolio_tracker.errors.asset_errors import InvalidPriceError
 
