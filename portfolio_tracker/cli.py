@@ -58,15 +58,17 @@ def handle_select_portfolio():
     console.print(
         f"[green]Selected portfolio: {portfolio.name}[/green]")
 
-def handle_print_porfolios():
-    if len(portfolios)== 0:
-         console.print("[blue]No portfolios available[/blue]")
-         return
-    table = Table(title = "Porfolios")
-    table.add_column("Name", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Description", style= "white")
+def handle_print_portfolios():
+    portfolios = view_all_portfolios()
+    if len(portfolios) == 0:
+        console.print("[blue]No portfolios available[/blue]")
+        return
 
-    for portfolio in portfolios.values():
+    table = Table(title="Portfolios")
+    table.add_column("Name", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Description", style="white")
+
+    for portfolio in portfolios:
         table.add_row(portfolio.name, portfolio.description)
 
     console.print(table)
@@ -150,6 +152,22 @@ def handle_delete_portfolio():
     delete_portfolio(name)
     console.print("[green]Portfolio deleted successfully[/green]")
 
+def handle_set_price():
+    ticker = input("Ticker: ").strip()
+    price = ask_number("Current asset price: ")
+
+    set_price(ticker, price)
+
+    console.print(
+        f"[green]Current price for {ticker.upper()} successfully updated![/green]"
+    )
+
+def handle_view_selected_portfolio():
+    portfolio = view_selected_portfolio()
+
+    console.print(f"\n[bold cyan]Portfolio: {portfolio.name}[/bold cyan]")
+    console.print(f"Description: {portfolio.description}")
+
 def run():
     while True:
         console.print(MAIN_MENU)
@@ -161,7 +179,7 @@ def run():
             elif user_input == 1:
                 handle_create_porfolio()
             elif user_input == 2:
-                handle_print_porfolios()
+                handle_print_portfolios()
             elif user_input == 3:
                 handle_select_portfolio()
             elif user_input == 4:
