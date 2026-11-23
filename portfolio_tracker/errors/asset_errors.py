@@ -3,14 +3,11 @@
 from portfolio_tracker.errors.base_error import PortfolioTrackerError
 
 
-class DuplicateAssetError(Exception):
-    def __init__(self, message):
-        super(). __init__(message)
+class DuplicateAssetError(PortfolioTrackerError):
+    pass
 
-class AssetNotFound(Exception):
-    def __init__(self, message):
-        super(). __init__(message)
+class AssetNotFound(PortfolioTrackerError):
+    pass
 
 class InvalidPriceError(PortfolioTrackerError):
-    def __init__(self, message):
-        super().__init__(message)
+    pass

@@ -1,5 +1,7 @@
+from decimal import Decimal 
+
 class Position:
-    def __init__(self, ticker):
+    def __init__(self, ticker, quantity, average_cost):
         self.ticker = ticker
-        self.quantity = 0.0
-        self.average_cost = 0.0
+        self.quantity = quantity
+        self.average_cost = average_cost

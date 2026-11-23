@@ -1,9 +1,18 @@
 from rich.console import Console
 from rich.table import Table
-from portfolio_tracker.service.asset_service import add_asset, assets, find_asset
-from portfolio_tracker.service.portfolio_service import create_portfolio, portfolios, find_portfolio
-from portfolio_tracker.service.transaction_service import add_transaction
 
+from portfolio_tracker.service.asset_service import add_asset, assets, find_asset
+from portfolio_tracker.service.portfolio_service import (
+    create_portfolio,
+    view_all_portfolios,
+    select_portfolio,
+    view_selected_portfolio,
+    delete_portfolio
+)
+from portfolio_tracker.service.cash_service import deposit_cash, get_cash_balance
+from portfolio_tracker.service.price_service import set_price, get_price
+from portfolio_tracker.service.transaction_service import buy, sell, transactions
+from portfolio_tracker.errors.base_error import PortfolioTrackerError
 
 console = Console()
 
@@ -12,12 +21,18 @@ MAIN_MENU = """
 MAIN MENU 
 ====
 1) Create Portfolio
-2) View portfolios
-3) Add asset
-4) Deposit funds
-5) Print Assets
-6) Buy
-7) View transactions 
+2) View Portfolios
+3) Select Portfolio
+4) View Selected Portfolio
+5) Delete Portfolio
+6) Add Asset
+7) Print Assets
+8) Set Current Asset Price
+9) Deposit Funds
+10) View Cash Balance
+11) Buy
+12) Sell
+13) View Transactions
 0) Exit
 """
 # helper function: any time you want to inforce thata the input is a number you use this 
@@ -35,6 +50,13 @@ def handle_create_porfolio():
     name = input("Portfolio name: ").strip()
     description = input("Porfolio description: ").strip()
     create_portfolio(name, description)
+
+def handle_select_portfolio():
+    name = input("Portfolio name: ").strip()
+    portfolio = select_portfolio(name)
+
+    console.print(
+        f"[green]Selected portfolio: {portfolio.name}[/green]")
 
 def handle_print_porfolios():
     if len(portfolios)== 0:
@@ -71,47 +93,62 @@ def handle_add_asset():
 
 def deposit():
     amount= ask_number("Amount to deposit: ")
-    console.print(f"The user decided to add {amount} to their balance...")
+    deposit_cash(amount)
+    console.print(f"The user decided to add {amount} to their balance")
 
 def handle_buy():
-    #recorded as a transaction 
-    portfolio_name = input("Portfolio: ").strip()
-    ticker= input (" Ticker: ").strip()
+    ticker = input("Ticker: ").strip()
     quantity = ask_number("Quantity: ")
-    price = ask_number ("Purchase price: ")
-    asset = find_asset(ticker)
-    portfolio = find_portfolio(portfolio_name)
-    add_transaction(portfolio, asset, "BUY", quantity, price)
-    console.print(" Buy transaction completed")
-    # two things can go wrong 1) no existing portfolio 2)no existin ticker 
+    price = ask_number("Purchase price: ")
 
-def handle_print_transaction():
-    if len(transaction)== 0:
-         console.print("[blue]No transactions are available[/blue]")
-         return
+    buy(ticker, quantity, price)
 
-    table = Table(title = "transactions")
-    table.add_column("Portfolio Name ", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Ticker", style= "white")
-    table.add_column("side", style= "white")
-    table.add_column("Price", style= "white")
-    table.add_column("Quantity", style= "white")
-    table.add_column("Datetime", style= "white")
+    console.print("[green]Buy transaction has been successfully completed![/green]") 
 
+def handle_sell():
+    ticker = input("Ticker: ").strip()
+    quantity = ask_number("Quantity: ")
+    price = ask_number("Selling price: ")
+
+    realized_gain = sell(ticker, quantity, price)
+
+    console.print(
+        f"[green]Sell transaction completed. "
+        f"Realized gain/loss: ${realized_gain}[/green]")
+
+def handle_print_transactions():
+    if len(transactions) == 0:
+        console.print("[blue]No transactions are available[/blue]")
+        return
+
+    table = Table(title="Transactions")
+    table.add_column("Portfolio Name")
+    table.add_column("Ticker")
+    table.add_column("Side")
+    table.add_column("Price")
+    table.add_column("Quantity")
+    table.add_column("Datetime")
 
     for transaction in transactions:
-        table.add_row(transaction.portfolio.name, 
-                        transaction.asset.ticker, 
-                        transaction.side, 
-                        transaction.price, 
-                        transaction.quatity, 
-                        transaction.datetime
+        table.add_row(
+            transaction.portfolio.name,
+            transaction.asset.ticker,
+            transaction.side,
+            str(transaction.price),
+            str(transaction.quantity),
+            str(transaction.datetime)
         )
 
     console.print(table)
 
+def handle_view_cash_balance():
+    balance = get_cash_balance()
+    console.print(f"Available cash: ${balance}")
 
-
+def handle_delete_portfolio():
+    name = input("Portfolio name to delete: ").strip()
+    delete_portfolio(name)
+    console.print("[green]Portfolio deleted successfully[/green]")
 
 def run():
     while True:
@@ -121,19 +158,33 @@ def run():
             if user_input == 0:
                 console.print("Thank you for choosing us!")
                 break
-            if user_input == 1:
+            elif user_input == 1:
                 handle_create_porfolio()
-            if user_input == 2:
+            elif user_input == 2:
                 handle_print_porfolios()
-            if user_input == 3:
+            elif user_input == 3:
+                handle_select_portfolio()
+            elif user_input == 4:
+                handle_view_selected_portfolio()
+            elif user_input == 5:
+                handle_delete_portfolio()
+            elif user_input == 6:
                 handle_add_asset()
-            if user_input == 4:
+            elif user_input == 7:
+                handle_print_assets()
+            elif user_input == 8:
+                handle_set_price()
+            elif user_input == 9:
                 deposit()
-            if user_input == 5:
-                 handle_print_assets()
-            if user_input == 6:
+            elif user_input == 10:
+                handle_view_cash_balance()
+            elif user_input == 11:
                 handle_buy()
-            if user_input == 7:
+            elif user_input == 12:
+                handle_sell()
+            elif user_input == 13:
                 handle_print_transactions()
-        except Exception as e:
-                console.print(f"[red]{str(e)}[/red]")
+            else:
+                console.print("[yellow]Invalid menu option.[/yellow]")
+        except PortfolioTrackerError as e:
+            console.print(f"[red]{str(e)}[/red]")
