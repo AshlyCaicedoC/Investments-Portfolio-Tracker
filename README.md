@@ -2,7 +2,7 @@
 An app that will allow user to track their portfolios investments, buy and sell assets, and look up performance metrics. 
 
 # How to set up the environment? 
- You need to activate the virtual environment and then run this command `pip install -r requirements.txt` this is to guarantee your environment is all set up with the dependencies need to run the up smoothly in your local machine. 
+ You need to activate the virtual environment and then run this command `pip install -r requirements.txt` this is to guarantee your environment is all set up with the dependencies need to run the up smoothly in your local machine. After you have set this environment run `python -m portfolio_tracker.main` for macs run `python3 -m portfolio_tracker.main`.
 
 
 # Package layout 
