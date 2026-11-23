@@ -1,5 +1,6 @@
 from rich.console import Console
 from rich.table import Table
+import math
 
 from portfolio_tracker.service.asset_service import add_asset, assets, find_asset
 from portfolio_tracker.service.portfolio_service import (
@@ -7,6 +8,7 @@ from portfolio_tracker.service.portfolio_service import (
     view_all_portfolios,
     select_portfolio,
     view_selected_portfolio,
+    get_portfolio_summary,
     delete_portfolio
 )
 from portfolio_tracker.service.cash_service import deposit_cash, get_cash_balance
@@ -45,11 +47,19 @@ def ask_number(prompt):
             return float(text)
         except ValueError:
             console.print(f"[yellow]'{text}' is not a number. Try again.[/yellow]")
+            continue 
+
+        if not math.isfinite(number):
+            console.print(f"[yellow]'{text}' is not a valid number. Try again.[/yellow]")
+            continue
+
+        return number
 
 def handle_create_porfolio():
     name = input("Portfolio name: ").strip()
     description = input("Porfolio description: ").strip()
     create_portfolio(name, description)
+    console.print(f"[green]Portfolio '{name}' created successfully[/green]")
 
 def handle_select_portfolio():
     name = input("Portfolio name: ").strip()
@@ -92,11 +102,12 @@ def handle_add_asset():
     ticker = input("Ticker: ").strip()
     issuer = input("Issuer: ").strip()
     add_asset(ticker, issuer)
+    console.print(f"[green]Asset {ticker.upper()} added successfully[/green]")
 
 def deposit():
     amount= ask_number("Amount to deposit: ")
     deposit_cash(amount)
-    console.print(f"The user decided to add {amount} to their balance")
+   console.print(f"[green]Deposited ${amount:,.2f}. New balance: ${get_cash_balance():,.2f}[/green]")
 
 def handle_buy():
     ticker = input("Ticker: ").strip()
@@ -136,7 +147,7 @@ def handle_print_transactions():
             transaction.portfolio.name,
             transaction.asset.ticker,
             transaction.side,
-            str(transaction.price),
+            format_money(transaction.price),
             str(transaction.quantity),
             str(transaction.datetime)
         )
@@ -145,7 +156,7 @@ def handle_print_transactions():
 
 def handle_view_cash_balance():
     balance = get_cash_balance()
-    console.print(f"Available cash: ${balance}")
+    console.print(f"Available cash: {format_money(balance)}")
 
 def handle_delete_portfolio():
     name = input("Portfolio name to delete: ").strip()
@@ -162,11 +173,45 @@ def handle_set_price():
         f"[green]Current price for {ticker.upper()} successfully updated![/green]"
     )
 
+# helper function: shows money with 2 decimals, or N/A when there is no value yet
+def format_money(value):
+    if value is None:
+        return "N/A"
+    return f"${value:,.2f}"
+
 def handle_view_selected_portfolio():
-    portfolio = view_selected_portfolio()
+    summary = get_portfolio_summary()
+    portfolio = summary["portfolio"]
 
     console.print(f"\n[bold cyan]Portfolio: {portfolio.name}[/bold cyan]")
     console.print(f"Description: {portfolio.description}")
+
+    if len(summary["rows"]) == 0:
+        console.print("[blue]This portfolio has no positions yet[/blue]")
+    else:
+        table = Table(title="Positions")
+        table.add_column("Ticker", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Quantity", justify="right")
+        table.add_column("Average Cost", justify="right")
+        table.add_column("Current Price", justify="right")
+        table.add_column("Market Value", justify="right")
+        table.add_column("Unrealized Gain/Loss", justify="right")
+
+        for row in summary["rows"]:
+            table.add_row(
+                row["ticker"],
+                str(row["quantity"]),
+                format_money(row["average_cost"]),
+                format_money(row["current_price"]),
+                format_money(row["market_value"]),
+                format_money(row["unrealized_gain"])
+            )
+
+        console.print(table)
+
+    console.print(f"Total market value: {format_money(summary['total_market_value'])}")
+    console.print(f"Total unrealized gain/loss: {format_money(summary['total_unrealized_gain'])}")
+    console.print(f"Realized gain/loss: {format_money(summary['realized_gain'])}")
 
 def run():
     while True:
