@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 class Portfolio:
     def __init__(self, name, description):
         # the .strip().upper() is to gurantee that no matter if the customer
