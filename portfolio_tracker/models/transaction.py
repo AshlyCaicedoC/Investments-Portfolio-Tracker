@@ -25,5 +25,5 @@ class Transaction(Base):
 
 
     # deleting a portfolio also deletes its trade history (and so its realized gains)
-    portfolio: Mapped["portfolios"] = relationship(back_populates="transactions", lazy="selectin")
-    asset: Mapped["assets"] = relationship(back_populates="transactions", lazy='selectin')
+    portfolio: Mapped["Portfolio"] = relationship(back_populates="transactions", lazy="selectin")
+    asset: Mapped["Asset"] = relationship(back_populates="transactions", lazy='selectin')
