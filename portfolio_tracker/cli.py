@@ -1,6 +1,7 @@
 from rich.console import Console
 from rich.table import Table
 import math
+from decimal import Decimal
 
 from portfolio_tracker.service.asset_service import add_asset, assets, find_asset
 from portfolio_tracker.service.portfolio_service import (
@@ -44,13 +45,13 @@ def ask_number(prompt):
         text = input(prompt).strip()
         # tell the interpreter what to do if an exception (error) happens
         try:
-           number = float(text)
+           number = Decimal(text)
         except ValueError:
-            console.print(f"[yellow]'{text}' is not a number. Try again.[/yellow]")
+            console.print(f"[yellow]'{text}' is not a number. Try again![/yellow]")
             continue 
 
         if not math.isfinite(number):
-            console.print(f"[yellow]'{text}' is not a valid number. Try again.[/yellow]")
+            console.print(f"[yellow]'{text}' is not a valid number. Try again![/yellow]")
             continue
 
         return number
@@ -59,7 +60,7 @@ def handle_create_porfolio():
     name = input("Portfolio name: ").strip()
     description = input("Porfolio description: ").strip()
     create_portfolio(name, description)
-    console.print(f"[green]Portfolio '{name}' created successfully[/green]")
+    console.print(f"[green]Portfolio '{name}' created successfully![/green]")
 
 def handle_select_portfolio():
     name = input("Portfolio name: ").strip()
