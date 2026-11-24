@@ -2,7 +2,6 @@ from rich.console import Console
 from rich.table import Table
 from decimal import Decimal, InvalidOperation
 
-from portfolio_tracker.service.asset_service import add_asset, list_assets, find_asset
 from portfolio_tracker.service.portfolio_service import (
     create_portfolio,
     view_all_portfolios,
@@ -94,7 +93,7 @@ def handle_print_assets():
     table.add_column("Ticker", justify="right", style="cyan", no_wrap=True)
     table.add_column("Issuer", style= "white")
 
-   for asset in assets:                       
+    for asset in assets:                       
         table.add_row(asset.ticker, asset.issuer)
 
     console.print(table)

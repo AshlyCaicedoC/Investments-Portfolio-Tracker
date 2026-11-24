@@ -4,7 +4,7 @@ from portfolio_tracker.models.portfolio import Portfolio
 from portfolio_tracker.errors.portfolio_errors import DuplicatePortfolioError, PortfolioNotFound, PortfolioNotEmptyError
 from portfolio_tracker.database import transaction
 from portfolio_tracker.storage import portfolio_storage, transaction_storage
-
+from portfolio_tracker.models.position import Position
 selected_portfolio_id = None
 
 
@@ -15,16 +15,45 @@ def create_portfolio(name, description):
     with transaction() as session:
         existing= portfolio_storage.find_portfolio_by_name(session, name)
 
-    if existing is not None:
+     if existing is not None:
         raise DuplicatePortfolioError(
             f"A portfolio named '{name}' already exists"
         )
-        portfolio = Portfolio(name=name, description=description)
-        portfolio_storage.save_portfolio(session, portfolio)
+            portfolio = Portfolio(name=name, description=description)
+            portfolio_storage.save_portfolio(session, portfolio)
 
-    return. portfolio 
+    return portfolio 
 
+def calculate_positions(transactions):
+    # replays the trades in the order they happened to rebuild what is held now
+    positions = {}
+    realized_gain = Decimal("0")
 
+    for transaction in transactions:
+        ticker = transaction.asset.ticker
+        quantity = transaction.quantity
+        price = transaction.price_per_share
+
+        if transaction.side == "buy":
+            if ticker in positions:
+                position = positions[ticker]
+                total_cost = (position.quantity * position.average_cost) + (quantity * price)
+                position.quantity = position.quantity + quantity
+                position.average_cost = total_cost / position.quantity
+            else:
+                positions[ticker] = Position(ticker, quantity, price)
+
+        elif transaction.side == "sell":
+            position = positions[ticker]
+            realized_gain += (price - position.average_cost) * quantity
+            position.quantity = position.quantity - quantity
+
+            # a fully sold asset is no longer a holding
+            if position.quantity == 0:
+                del positions[ticker]
+
+    return positions, realized_gain
+    
 def find_portfolio(name):
     name = name.strip().lower()
 
@@ -49,7 +78,7 @@ def select_portfolio(name):
     global selected_portfolio_id
     portfolio = find_portfolio(name)
     selected_portfolio_id= portfolio.id
-    return portfolio=
+    return portfolio
 
 
 def view_selected_portfolio():
@@ -99,7 +128,7 @@ def get_portfolio_summary():
     total_market_value = Decimal("0")
     total_unrealized_gain = Decimal("0")
 
-    for position in portfolio.positions.values():
+    for position in positions.values():
         current_price = get_price(position.ticker)
 
         # if the user has not set a price for this asset yet, we cannot value it

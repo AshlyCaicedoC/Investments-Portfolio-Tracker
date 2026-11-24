@@ -4,6 +4,7 @@ from portfolio_tracker.models.asset import Asset
 from portfolio_tracker.errors.asset_errors import DuplicateAssetError, AssetNotFound
 from portfolio_tracker.database import transaction
 from portfolio_tracker.storage import asset_storage
+import logging and logger = logging.getLogger(__name__)
 
 
 def add_asset(ticker, issuer):
@@ -13,7 +14,7 @@ def add_asset(ticker, issuer):
     with transaction() as session:
         existing=  asset_storage.find_asset_by_ticker(session, ticker)
 
-        if existing in assets:
+        if existing is not None:
             raise DuplicateAssetError(f"Asset '{ticker}' already exists")
 
         asset = Asset(ticker=ticker, issuer=issuer)
@@ -28,7 +29,7 @@ def find_asset(ticker):
     with transaction() as session:
         asset =  asset_storage.find_asset_by_ticker(session, ticker)
 
-   if asset is None:
+    if asset is None:
         raise AssetNotFound(f"No ticker '{ticker}' exists")
 
     return asset
