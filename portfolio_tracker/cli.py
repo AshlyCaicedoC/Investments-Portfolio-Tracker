@@ -1,7 +1,6 @@
 from rich.console import Console
 from rich.table import Table
-import math
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from portfolio_tracker.service.asset_service import add_asset, assets, find_asset
 from portfolio_tracker.service.portfolio_service import (
@@ -46,11 +45,11 @@ def ask_number(prompt):
         # tell the interpreter what to do if an exception (error) happens
         try:
            number = Decimal(text)
-        except ValueError:
+        except InvalidOperation:
             console.print(f"[yellow]'{text}' is not a number. Try again![/yellow]")
             continue 
 
-        if not math.isfinite(number):
+        if not number.is_finite():
             console.print(f"[yellow]'{text}' is not a valid number. Try again![/yellow]")
             continue
 
@@ -148,7 +147,7 @@ def handle_print_transactions():
             transaction.portfolio.name,
             transaction.asset.ticker,
             transaction.side,
-            format_money(transaction.price),
+            format_money(transaction.price_per_share),
             str(transaction.quantity),
             str(transaction.datetime)
         )
