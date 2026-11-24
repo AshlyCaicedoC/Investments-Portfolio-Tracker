@@ -149,7 +149,7 @@ def handle_print_transactions():
             transaction.side,
             format_money(transaction.price_per_share),
             str(transaction.quantity),
-            str(transaction.datetime)
+            str(transaction.trade_date)
         )
 
     console.print(table)
