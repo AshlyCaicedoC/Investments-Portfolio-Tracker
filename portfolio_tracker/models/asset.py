@@ -8,12 +8,12 @@ class Asset(Base):
     __tablename__ = "assets"
 
     # id has no business meaning, it only identifies the row
-    id: Mapped[int] = mapped_column(name = "id", primary_key=True, auto_increment)
+    id: Mapped[int] = mapped_column(name = "id", primary_key=True) #  name id auto increments automatically so if left will be sintax error
     # the ticker is the business identifier, so the database protects it as unique
-    ticker: Mapped[str] = mapped_column(name= "ticker", unique=True, nullable=False)
-    issuer: Mapped[str] = mapped_column(String(10), unique= True)
+    ticker: Mapped[str] = mapped_column(String(10), name= "ticker", unique=True, nullable=False)
+    issuer: Mapped[str] = mapped_column(String(100))
 
-    transactions: Mapped[list["Transaction"]] = relationship(lazy="selectin")
+    transactions: Mapped[list["transactions"]] = relationship(lazy="selectin")
     price: Mapped["Price | None"] = relationship(lazy="selectin")
 
     def __str__(self):
