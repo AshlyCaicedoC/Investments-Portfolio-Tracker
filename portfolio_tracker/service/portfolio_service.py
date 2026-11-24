@@ -15,12 +15,12 @@ def create_portfolio(name, description):
     with transaction() as session:
         existing= portfolio_storage.find_portfolio_by_name(session, name)
 
-     if existing is not None:
-        raise DuplicatePortfolioError(
-            f"A portfolio named '{name}' already exists"
-        )
-            portfolio = Portfolio(name=name, description=description)
-            portfolio_storage.save_portfolio(session, portfolio)
+        if existing is not None:
+            raise DuplicatePortfolioError(
+                f"A portfolio named '{name}' already exists"
+            )
+        portfolio = Portfolio(name=name, description=description)
+        portfolio_storage.save_portfolio(session, portfolio)
 
     return portfolio 
 
@@ -53,7 +53,7 @@ def calculate_positions(transactions):
                 del positions[ticker]
 
     return positions, realized_gain
-    
+
 def find_portfolio(name):
     name = name.strip().lower()
 

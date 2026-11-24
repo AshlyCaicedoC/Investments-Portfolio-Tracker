@@ -14,7 +14,7 @@ def connect():
     # the code never holds the values; it asks the environment for them
     url = URL.create(
         drivername="mysql+pymysql",
-        user=os.getenv("DB_USER"),
+        username=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         host=os.getenv("DB_HOST"),
         port=int(os.getenv("DB_PORT", "3306")),
@@ -36,8 +36,7 @@ class Base(DeclarativeBase):
 
 @contextmanager
 def transaction():
-    # one session = one unit of work: all of its statements are committed together
-    # or rolled back together
+
     session = SessionLocal()
     try:
         # hands the session to the code inside the "with" block and waits here until it finishes
@@ -58,5 +57,4 @@ def init_db():
     # importing the models registers every table on Base before we create them
     import portfolio_tracker.models
 
-    # creates any table that does not exist yet; tables that already exist are left alone
     Base.metadata.create_all(engine)

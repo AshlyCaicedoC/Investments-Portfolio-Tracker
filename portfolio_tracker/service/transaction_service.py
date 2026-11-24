@@ -2,10 +2,10 @@ import logging
 from decimal import Decimal
 from portfolio_tracker.service.portfolio_service import view_selected_portfolio, calculate_positions
 from portfolio_tracker.models.transaction import Transaction
-from portfolio_tracker.models.position import Position
+
 from portfolio_tracker.service.asset_service import find_asset
-from portfolio_tracker.service.portfolio_service import view_selected_portfolio
-from portfolio_tracker.service.cash_service import cash_account
+from portfolio_tracker.database import transaction
+from portfolio_tracker.storage import cash_storage, transaction_storage
 from portfolio_tracker.errors.transaction_errors import (
     InvalidQuantityError,
     InvalidTransactionPriceError,
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def add_transaction(portfolio, asset, side, quantity, price_per_share):
-    trade = Transaction(portfolio=portfolio, asset=asset, side=side,
+    trade = Transaction(portfolio_id=portfolio.id, asset_id=asset.id, side=side,
                          quantity=quantity, price_per_share=price_share_share)
     
     with transaction() as session:
@@ -48,7 +48,7 @@ def buy(ticker, quantity, price):
     with transaction() as session:
         account = cash_storage.get_cash_account(session)
 
-        if cash_account.balance < total_cost:
+        if account.balance < total_cost:
             raise InsufficientFundsError("You do not have enough cash to complete this purchase.")
 
         account.balance = account.balance - total_cost
@@ -75,13 +75,13 @@ def sell(ticker, quantity, price):
         transactions = transaction_storage.list_transactions_for_portfolio(session, portfolio)
         positions, _ = calculate_positions(transactions)
 
-        if asset.ticker not in portfolio.positions:
+        if asset.ticker not in positions:
             raise InsufficientSharesError(f"You do not hold any shares of '{ticker}'.")
 
         position = portfolio.positions[asset.ticker]
 
         if quantity > position.quantity:
-        raise InsufficientSharesError("You cannot sell more shares than you own.")
+            raise InsufficientSharesError("You cannot sell more shares than you own.")
 
         realized_gain = (price - position.average_cost) * quantity
         sale_amount = quantity * price
