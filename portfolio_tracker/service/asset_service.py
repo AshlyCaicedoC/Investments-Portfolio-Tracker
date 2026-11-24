@@ -4,7 +4,9 @@ from portfolio_tracker.models.asset import Asset
 from portfolio_tracker.errors.asset_errors import DuplicateAssetError, AssetNotFound
 from portfolio_tracker.database import transaction
 from portfolio_tracker.storage import asset_storage
-import logging and logger = logging.getLogger(__name__)
+import logging 
+
+logger = logging.getLogger(__name__)
 
 
 def add_asset(ticker, issuer):
