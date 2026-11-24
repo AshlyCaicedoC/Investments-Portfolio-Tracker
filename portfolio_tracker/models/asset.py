@@ -13,8 +13,7 @@ class Asset(Base):
     ticker: Mapped[str] = mapped_column(String(10), name= "ticker", unique=True, nullable=False)
     issuer: Mapped[str] = mapped_column(String(100))
 
-    transactions: Mapped[list["transactions"]] = relationship(lazy="selectin")
-    price: Mapped["Price | None"] = relationship(lazy="selectin")
+    transactions: Mapped[list["Transaction"]] = relationship(back_populates="asset", lazy="selectin")
 
     def __str__(self):
         return f"[Ticker:{self.ticker} | Name: {self.issuer}]"

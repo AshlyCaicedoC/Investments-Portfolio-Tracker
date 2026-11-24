@@ -1,18 +1,17 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Enum, ForeignKey, Numeric
+from sqlalchemy import Enum, ForeignKey, Numeric, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship 
 
 from portfolio_tracker.database import Base
 
 class Transaction(Base):
-    __tablename__ = " transactions"
+    __tablename__ = "transactions"
 
-     __table_args__ = (
-        CheckConstraint("side IN ('buy', 'sell')", name="ck_transaction_side"),
+    __table_args__ = (
         CheckConstraint("quantity > 0", name="ck_transaction_quantity_positive"),
-        CheckConstraint("price >= 0", name="ck_transaction_price_not_negative"),
+        CheckConstraint("price_per_share >= 0", name="ck_transaction_price_not_negative"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -21,7 +20,7 @@ class Transaction(Base):
     side: Mapped[str] = mapped_column(Enum("buy", "sell"))
     quantity: Mapped[Decimal] = mapped_column(Numeric(14, 4))
     price_per_share: Mapped[Decimal] = mapped_column(Numeric(14, 4))
-    trade_datedatetime: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    trade_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
 
     # deleting a portfolio also deletes its trade history (and so its realized gains)

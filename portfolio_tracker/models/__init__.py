@@ -3,4 +3,3 @@ from portfolio_tracker.models.asset import Asset
 from portfolio_tracker.models.portfolio import Portfolio
 from portfolio_tracker.models.transaction import Transaction
 from portfolio_tracker.models.cash import CashAccount
-from portfolio_tracker.models.price import Price
