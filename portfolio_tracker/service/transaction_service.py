@@ -13,13 +13,17 @@ from portfolio_tracker.errors.transaction_errors import (
     InsufficientSharesError
 )
 
-transactions = []
 
 
-def add_transaction(portfolio, asset, side, quantity, price):
-    transaction = Transaction(portfolio, asset, side, quantity, price)
-    transactions.append(transaction)
-    return transaction
+
+def add_transaction(portfolio, asset, side, quantity, price_per_share):
+    trade = Transaction(portfolio=portfolio, asset=asset, side=side,
+                         quantity=quantity, price_per_share=share)
+    
+    with transaction() as session:
+       transaction_storage.save_transaction(session, trade)
+
+    return trade
 
 
 def buy(ticker, quantity, price):
@@ -37,29 +41,14 @@ def buy(ticker, quantity, price):
 
     total_cost = quantity * price
 
+    with transaction() as session:
+        account = cash_storage.get_cash_account(session)
+
     if cash_account.balance < total_cost:
         raise InsufficientFundsError("You do not have enough cash to complete this purchase.")
 
-    if asset.ticker in portfolio.positions:
-        position = portfolio.positions[asset.ticker]
-
-        new_quantity = position.quantity + quantity
-
-        new_average_cost = (
-            (position.quantity * position.average_cost) + (quantity * price)
-        ) / new_quantity
-
-        position.quantity = new_quantity
-        position.average_cost = new_average_cost
-    else:
-        position = Position(asset.ticker, quantity, price)
-        portfolio.positions[asset.ticker] = position
-
-    cash_account.update_balance(-total_cost)
-
-    add_transaction(portfolio, asset, "buy", quantity, price)
-
-    return position
+    logger.info("Bought %s %s at %s in '%s'", quantity, asset.ticker, price, portfolio.name)
+    return trade
 
 
 def sell(ticker, quantity, price):
@@ -74,6 +63,10 @@ def sell(ticker, quantity, price):
 
     if price < 0:
         raise InvalidTransactionPriceError("Selling price cannot be negative.")
+    
+    with transaction() as session:
+        transactions = transaction_storage.list_transactions_for_portfolio(session, portfolio)
+        positions, _ = calculate_positions(transactions)
 
     if asset.ticker not in portfolio.positions:
         raise InsufficientSharesError(f"You do not hold any shares of '{ticker}'.")
@@ -84,17 +77,13 @@ def sell(ticker, quantity, price):
         raise InsufficientSharesError("You cannot sell more shares than you own.")
 
     realized_gain = (price - position.average_cost) * quantity
-
-    portfolio.realized_gain += realized_gain
-
     sale_amount = quantity * price
+
+    account = cash_storage.get_cash_account(session)
+    account.balance = account.balance + sale_amount
+
     cash_account.update_balance(sale_amount)
 
-    position.quantity -= quantity
-
-    if position.quantity == 0:
-        del portfolio.positions[asset.ticker]
-
-    add_transaction(portfolio, asset, "sell", quantity, price)
-
+    logger.info("Sold %s %s at %s in '%s', realized %s",
+                quantity, asset.ticker, price, portfolio.name, realized_gain)
     return realized_gain
