@@ -49,7 +49,7 @@ def ask_number(prompt):
             console.print(f"[yellow]'{text}' is not a number. Try again![/yellow]")
             continue 
 
-        if not number.is_finite():
+        if number is not None and number.is_finite():
             console.print(f"[yellow]'{text}' is not a valid number. Try again![/yellow]")
             continue
 
