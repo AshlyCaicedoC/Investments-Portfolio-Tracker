@@ -2,7 +2,7 @@ from rich.console import Console
 from rich.table import Table
 from decimal import Decimal, InvalidOperation
 
-from portfolio_tracker.service.asset_service import add_asset, assets, find_asset
+from portfolio_tracker.service.asset_service import add_asset, list_assets, find_asset
 from portfolio_tracker.service.portfolio_service import (
     create_portfolio,
     view_all_portfolios,
@@ -13,8 +13,9 @@ from portfolio_tracker.service.portfolio_service import (
 )
 from portfolio_tracker.service.cash_service import deposit_cash, get_cash_balance
 from portfolio_tracker.service.price_service import set_price, get_price
-from portfolio_tracker.service.transaction_service import buy, sell, transactions
+from portfolio_tracker.service.transaction_service import buy, sell, list_transactions
 from portfolio_tracker.errors.base_error import PortfolioTrackerError
+from portfolio_tracker.service.asset_service import add_asset, find_asset, list_assets
 
 console = Console()
 
@@ -84,6 +85,7 @@ def handle_print_portfolios():
     console.print(table)
 
 def handle_print_assets():
+    assets= list_assets()
     if len(assets)== 0:
          console.print("[blue]No assets available[/blue]")
          return
@@ -92,7 +94,7 @@ def handle_print_assets():
     table.add_column("Ticker", justify="right", style="cyan", no_wrap=True)
     table.add_column("Issuer", style= "white")
 
-    for asset in assets.values():
+   for asset in assets:                       
         table.add_row(asset.ticker, asset.issuer)
 
     console.print(table)
@@ -130,6 +132,8 @@ def handle_sell():
         f"Realized gain/loss: ${realized_gain}[/green]")
 
 def handle_print_transactions():
+    transactions= list_transactions()
+
     if len(transactions) == 0:
         console.print("[blue]No transactions are available[/blue]")
         return
