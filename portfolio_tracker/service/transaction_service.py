@@ -57,7 +57,7 @@ def buy(ticker, quantity, price):
 
     cash_account.update_balance(-total_cost)
 
-    add_transaction(portfolio, asset, "BUY", quantity, price)
+    add_transaction(portfolio, asset, "buy", quantity, price)
 
     return position
 
@@ -95,6 +95,6 @@ def sell(ticker, quantity, price):
     if position.quantity == 0:
         del portfolio.positions[asset.ticker]
 
-    add_transaction(portfolio, asset, "SELL", quantity, price)
+    add_transaction(portfolio, asset, "sell", quantity, price)
 
     return realized_gain
