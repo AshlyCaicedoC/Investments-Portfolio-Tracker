@@ -8,7 +8,7 @@ class Portfolio(Base):
     __tablename__ = "portfolios"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), unique=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str] = mapped_column(String(255))
 
     # deleting a portfolio also deletes its trade history (and so its realized gains)
