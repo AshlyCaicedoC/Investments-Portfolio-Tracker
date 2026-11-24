@@ -1,5 +1,4 @@
 # this is a service module so it implements logic related to the asset class/domain
-
 from portfolio_tracker.models.asset import Asset
 from portfolio_tracker.errors.asset_errors import DuplicateAssetError, AssetNotFound
 from portfolio_tracker.database import transaction
