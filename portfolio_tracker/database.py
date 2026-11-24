@@ -14,7 +14,7 @@ def connect():
     # the code never holds the values; it asks the environment for them
     url = URL.create(
         drivername="mysql+pymysql",
-        username=os.getenv("DB_USER"),
+        user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         host=os.getenv("DB_HOST"),
         port=int(os.getenv("DB_PORT", "3306")),
