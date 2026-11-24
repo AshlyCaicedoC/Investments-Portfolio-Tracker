@@ -1,4 +1,4 @@
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from portfolio_tracker.models.portfolio import Portfolio
 
@@ -27,4 +27,3 @@ def save_portfolio(session, portfolio):
 def delete_portfolio(session, portfolio):
     # the relationship's cascade also deletes this portfolio's transactions
     session.delete(portfolio)
-    
