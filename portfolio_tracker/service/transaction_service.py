@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def add_transaction(portfolio, asset, side, quantity, price_per_share):
+def add_transaction(session, portfolio, asset, side, quantity, price_per_share):
     trade = Transaction(portfolio_id=portfolio.id, asset_id=asset.id, side=side,
                          quantity=quantity, price_per_share=price_per_share)
 
