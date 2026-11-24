@@ -1,6 +1,7 @@
 from sqlalchemy import select
 
 from portfolio_tracker.models.portfolio import Portfolio
+from sqlalchemy import func, select
 
 
 def find_portfolio_by_name(session, name):

@@ -14,7 +14,7 @@ def list_transactions(session):
     return session.scalars(
         select(Transaction)
         .options(joinedload(Transaction.portfolio), joinedload(Transaction.asset))
-        .order_by(Transaction.datetime, Transaction.id)
+        .order_by(Transaction.trade_date, Transaction.id)
     ).all()
 
 
@@ -24,6 +24,5 @@ def list_transactions_for_portfolio(session, portfolio):
         select(Transaction)
         .options(joinedload(Transaction.asset))
         .where(Transaction.portfolio_id == portfolio.id)
-        .order_by(Transaction.datetime, Transaction.id)
+        .order_by(Transaction.trade_date, Transaction.id)
     ).all()
-    
