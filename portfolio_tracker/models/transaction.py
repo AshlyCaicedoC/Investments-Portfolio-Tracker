@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Enum, ForeignKey, Numeric, CheckConstraint
+from sqlalchemy import Enum, ForeignKey, Numeric, CheckConstraint, Datetime
 from sqlalchemy.orm import Mapped, mapped_column, relationship 
 
 from portfolio_tracker.database import Base

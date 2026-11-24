@@ -1,6 +1,7 @@
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Decimal, ForeignKey, Numeric
+from sqlalchemy import ForeignKey, Numeric, CheckConstraint
+from decimal import Decimal
 
 from portfolio_tracker.database import Base
 

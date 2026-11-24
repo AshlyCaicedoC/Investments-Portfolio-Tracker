@@ -12,6 +12,6 @@ class Portfolio(Base):
     description: Mapped[str] = mapped_column(String(255))
 
     # deleting a portfolio also deletes its trade history (and so its realized gains)
-    transactions: Mapped[list["Transaction"]] = relationship(back_populates="portfolios",
+    transactions: Mapped[list["Transaction"]] = relationship(back_populates="portfolio",
         cascade="all, delete-orphan",
         lazy= 'selectin')
