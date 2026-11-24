@@ -4,8 +4,6 @@ from portfolio_tracker.models.portfolio import Portfolio
 from portfolio_tracker.errors.portfolio_errors import DuplicatePortfolioError, PortfolioNotFound, PortfolioNotEmptyError
 
 
-portfolios = {} # will be replaced with real persistance when we introduce databases 
-
 selected_portfolio = None
 
 
@@ -37,7 +35,6 @@ def view_all_portfolios():
 
 def select_portfolio(name):
     global selected_portfolio
-
     selected_portfolio = find_portfolio(name)
     return selected_portfolio
 

@@ -3,7 +3,7 @@
 
 from portfolio_tracker.models.asset import Asset
 from portfolio_tracker.errors.asset_errors import DuplicateAssetError, AssetNotFound
-assets = {}
+
 
 def add_asset(ticker, name):
     ticker = ticker.strip().upper() # we added this line to normalize the ticker and make sure if the ticker is written in lower or uppercase, it should be treated as the same 
