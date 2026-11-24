@@ -78,7 +78,7 @@ def sell(ticker, quantity, price):
         if asset.ticker not in positions:
             raise InsufficientSharesError(f"You do not hold any shares of '{ticker}'.")
 
-        position = portfolio.positions[asset.ticker]
+        position = positions[asset.ticker]
 
         if quantity > position.quantity:
             raise InsufficientSharesError("You cannot sell more shares than you own.")
