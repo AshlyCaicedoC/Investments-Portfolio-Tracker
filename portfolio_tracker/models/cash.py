@@ -1,15 +1,16 @@
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, Numeric, CheckConstraint
 from decimal import Decimal
-from portfolio_tracker.errors.cash_errors import NegativeCashBalanceError
 
+from portfolio_tracker.database import Base
 
-class CashAccount:
-    def __init__(self):
-        self.balance = Decimal("0")
+class CashAccount(Base):
+    __tablename__ = "cash_account"
+# the database rejects 
+    __table_args__ = (
+        CheckConstraint("balance >= 0", name="balance"),
+    )
 
-    def update_balance(self, amount):
-        new_balance = self.balance + Decimal(str(amount))
-
-        if new_balance < 0:
-            raise NegativeCashBalanceError("Cash balance cannot be negative.")
-        
-        self.balance = new_balance
+    id: Mapped[int] = mapped_column(primary_key=True)
+    balance: Mapped[Decimal] = mapped_column(Numeric(14, 2), name="balance")

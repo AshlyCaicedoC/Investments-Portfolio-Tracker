@@ -1,8 +1,7 @@
 from rich.console import Console
 from rich.table import Table
-import math
+from decimal import Decimal, InvalidOperation
 
-from portfolio_tracker.service.asset_service import add_asset, assets, find_asset
 from portfolio_tracker.service.portfolio_service import (
     create_portfolio,
     view_all_portfolios,
@@ -13,8 +12,9 @@ from portfolio_tracker.service.portfolio_service import (
 )
 from portfolio_tracker.service.cash_service import deposit_cash, get_cash_balance
 from portfolio_tracker.service.price_service import set_price, get_price
-from portfolio_tracker.service.transaction_service import buy, sell, transactions
+from portfolio_tracker.service.transaction_service import buy, sell, list_transactions
 from portfolio_tracker.errors.base_error import PortfolioTrackerError
+from portfolio_tracker.service.asset_service import add_asset, find_asset, list_assets
 
 console = Console()
 
@@ -44,13 +44,13 @@ def ask_number(prompt):
         text = input(prompt).strip()
         # tell the interpreter what to do if an exception (error) happens
         try:
-           number = float(text)
-        except ValueError:
-            console.print(f"[yellow]'{text}' is not a number. Try again.[/yellow]")
+           number = Decimal(text)
+        except InvalidOperation:
+            console.print(f"[yellow]'{text}' is not a number. Try again![/yellow]")
             continue 
 
-        if not math.isfinite(number):
-            console.print(f"[yellow]'{text}' is not a valid number. Try again.[/yellow]")
+        if not number.is_finite():
+            console.print(f"[yellow]'{text}' is not a valid number. Try again![/yellow]")
             continue
 
         return number
@@ -59,7 +59,7 @@ def handle_create_porfolio():
     name = input("Portfolio name: ").strip()
     description = input("Porfolio description: ").strip()
     create_portfolio(name, description)
-    console.print(f"[green]Portfolio '{name}' created successfully[/green]")
+    console.print(f"[green]Portfolio '{name}' created successfully![/green]")
 
 def handle_select_portfolio():
     name = input("Portfolio name: ").strip()
@@ -84,6 +84,7 @@ def handle_print_portfolios():
     console.print(table)
 
 def handle_print_assets():
+    assets= list_assets()
     if len(assets)== 0:
          console.print("[blue]No assets available[/blue]")
          return
@@ -92,7 +93,7 @@ def handle_print_assets():
     table.add_column("Ticker", justify="right", style="cyan", no_wrap=True)
     table.add_column("Issuer", style= "white")
 
-    for asset in assets.values():
+    for asset in assets:                       
         table.add_row(asset.ticker, asset.issuer)
 
     console.print(table)
@@ -130,6 +131,8 @@ def handle_sell():
         f"Realized gain/loss: ${realized_gain}[/green]")
 
 def handle_print_transactions():
+    transactions= list_transactions()
+
     if len(transactions) == 0:
         console.print("[blue]No transactions are available[/blue]")
         return
@@ -147,9 +150,9 @@ def handle_print_transactions():
             transaction.portfolio.name,
             transaction.asset.ticker,
             transaction.side,
-            format_money(transaction.price),
+            format_money(transaction.price_per_share),
             str(transaction.quantity),
-            str(transaction.datetime)
+            str(transaction.trade_date)
         )
 
     console.print(table)

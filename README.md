@@ -1,9 +1,17 @@
 # Investments-Portfolio-Tracker
 An app that will allow user to track their portfolios investments, buy and sell assets, and look up performance metrics. 
 
-# How to set up the environment? 
- You need to activate the virtual environment and then run this command `pip install -r requirements.txt` this is to guarantee your environment is all set up with the dependencies need to run the up smoothly in your local machine. After you have set this environment run `python -m portfolio_tracker.main` for macs run `python3 -m portfolio_tracker.main`.
-
+# How to set up  and run the app?
+ **Database set up**
+To install MySQL run this command in tour terminal to install and start MySQL `brew install mysql`
+`brew services start mysql`.
+**Clone the repo and set up you local environment like this**
+  1. You need to clone the repo from github to your local machine use this command in your vs code terminal `git clone https://github.com/AshlyCaicedoC/Investments-Portfolio-Tracker.git`. 
+  2.  Change the working directory to the Investments-Portfolio-Tracker folder, use this command `cd Investments-Portfolio-Tracker`
+  3. Create a virtual environment, use this command for mac `python3 -m venv .venv` and windows `python -m venv .venv`
+  4. Activate the virtual environment `ource .venv/bin/activate`
+  5. Run this command `pip install -r requirements.txt` this is to guarantee your environment is all set up with the dependencies need to run the up smoothly in your local machine. 
+  6. Finally, after you have set this environment run  `python -m portfolio_tracker.main` for windows and for macs run `python3 -m portfolio_tracker.main`.
 
 # Package layout 
 1. **Models**
@@ -29,7 +37,22 @@ Services
 - main.py: Configures application logging and starts the application.
 - init.py: Marks directories as Python packages so their modules can be imported.
 
-# The 5 decisions
+# How to run the tests
+
+From the project folder, with the virtual environment active, write on mac `python3 -m pytest -v` and on windows `python -m pytest -v`. The `-v` (verbose) option lists every test by name with PASSED or FAILED next to it, instead of just a dot per test. The tests use their own in-memory database, so MySQL doesn't need to be running.
+
+
+# How did Test work 
+
+The empty_db fixture in conftest.py is a fixture that allows us to create an empty database for the tests to run on. conftest.py is a module that pytest always opens before the tests start. With this module and the fixtures in it, we guarantee that the tests never touch the database of the actual application, and we avoid tests having external dependencies.
+
+One important fixture is monkeypatch, because this one in specific is what allows us to point to the in-memory database that is used to run the tests instead of the MySQL database(the real one).
+
+Shared setup lives in fixtures. funded_portfolio and set_prices are fixtures that the tests for every service use. All the fixtures that are shared between the tests of each service are stored in conftest.py, so they can be used across all test functions.
+
+A bug I introduced on purpose: while testing the `price_service` module, I changed the constraint on the price from `price < 0` to `price < -1000`. The test `test_negative_price_is_refused` failed, and the report said `FAILED tests/test_price_service.py::test_negative_price_is_refused - Failed: DID NOT RAISE InvalidPriceError`. This happened because the price constraint was altered, and it let negative prices be passed to the app. 
+
+# Decisions
 
 
 1. **Are fractional shares allowed?**
@@ -48,3 +71,14 @@ Services
    - **Shown to the user:** errors caused by user actions, such as an unknown ticker or portfolio, a duplicate asset or portfolio, no portfolio selected, an invalid quantity or price, not enough cash, selling more shares than owned, or deleting a portfolio that still has positions. All of these inherit from `PortfolioTrackerError`; the CLI shows them in red and the app keeps running. Input that is not a valid number shows a yellow message and asks again.
 
    - **Written to the log:** mainly bugs. `main.py` writes the full technical details to `portfolio_tracker.log`, and the user only sees a short message saying the app has to close. The log also records when the app starts and stops and every price update.
+
+6. **Are current prices stored in the database, or kept in memory and re-entered each run?**
+There is no reason to store the current prices, because every time a user enters a price, he or she will be able to calculate the market value and unrealized gain from the price they entered in the session they are in. As for holdings, the price per share is stored in the transactions table, so the metrics related to it can be calculated from there. This is the reason why the prices are kept in memory.
+
+7. **How many decimal places do you store for cash, share quantities, and prices, and what does that mean for rounding? For example, what happens to the cash balance when someone buys 3 shares at $33.3333?**
+For cash 2 decimal places, for share quantities 4, and for prices 4. Cash has 2 because money is paid in cents, and quantities and prices have 4 so fractional shares and small prices can be saved exactly. All the calculations are done with `Decimal`, so there are no rounding errors while the app is calculating.
+
+Before the cash changes, the cost of the trade is rounded to the nearest cent, the same way a broker does it. For example, if a user has $10,000.00 and buys 3 shares at $33.3333, the trade costs $99.9999, which is rounded to $100.00, so the cash goes down to $9,900.00. The transaction still saves the exact quantity and price. This was done to guarantee that the cash always changes in whole cents, and it is a way to make sure the cash and the transactions match.
+
+8. **Which of your business rules does the database itself enforce, in addition to the checks in your Python code, and why those?**
+Quantities have to be greater than 0, the price per share cannot be negative, and the balance cannot be negative. The database checks act like the last line of defense, so when wrong data enters the system it can be stopped, and this prevents the system from breaking.
