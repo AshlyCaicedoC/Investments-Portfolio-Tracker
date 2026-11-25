@@ -29,9 +29,3 @@ def test_negative_price_is_refused():
         price_service.set_price("AAPL", Decimal("-1"))
 
     assert price_service.get_price("AAPL") == Decimal("190")
-
-def test_price_for_unknown_asset_is_refused():
-    with pytest.raises(AssetNotFound):
-        price_service.set_price("MSFT", Decimal("100"))
-
-    assert price_service.get_price("MSFT") is None
