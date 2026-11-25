@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from portfolio_tracker import database
-from portfolio_tracker.service import portfolio_service, price_service
+from portfolio_tracker.service import portfolio_service, price_service, asset_service, cash_service
 import portfolio_tracker.models
 
 
@@ -25,3 +25,18 @@ def empty_db(monkeypatch):
 
     yield
     engine.dispose()
+
+@pytest.fixture
+def set_prices(monkeypatch):
+    # replaces the price source with prices the test chooses
+    def _set(fake_prices):
+         monkeypatch.setattr(portfolio_service, "get_price", lambda ticker: fake_prices.get(ticker))
+    return _set
+
+@pytest.fixture
+def funded_portfolio():
+    # 10,000 in cash, a portfolio called Growth already selected, and AAPL added as an asset
+    cash_service.deposit_cash(Decimal("10000"))
+    portfolio_service.create_portfolio("Growth", "Tech stocks")
+    portfolio_service.select_portfolio("Growth")
+    asset_service.add_asset("AAPL", "Apple Inc.")
