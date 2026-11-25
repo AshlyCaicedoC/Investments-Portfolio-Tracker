@@ -16,3 +16,7 @@ def test_new_price_replaces_the_old_one():
     price_service.set_price("AAPL", Decimal("190"))
     price_service.set_price("AAPL", Decimal("200"))
     assert price_service.get_price("AAPL") == Decimal("200")
+
+def test_asset_with_no_price_returns_none():
+    asset_service.add_asset("AAPL", "Apple Inc.")
+    assert price_service.get_price("AAPL") is None
